@@ -1,97 +1,91 @@
-#include <stdbool.h>
 #include <stdint.h>
+
+#include "sdk_config.h"
 #include "nrf_delay.h"
-#include "boards.h"
+#include "nrfx_gpiote.h"
+#include "nrfx_systick.h"
+#include "app_timer.h"
+#include "drv_rtc.h"
 
-#define LONG_WAIT_TIME_MS 1000
+#include "custom_button.h"
+#include "custom_leds.h"
+#include "custom_blink.h"
 
-#define CHEC_WAIT_TIME_MS 10
+#define DURATION_MS 1000
+#define DEBOUNCE_TIME_MS 10
+#define DOUBLE_CLICK_TIME_MS 500
 
-#define COUNT_CHECK LONG_WAIT_TIME_MS / CHEC_WAIT_TIME_MS
+static volatile bool is_enable = true;
+static volatile int count_click = 0;
 
-#define MY_LED_1 NRF_GPIO_PIN_MAP(0, 6)
+APP_TIMER_DEF(double_click_timer);
+APP_TIMER_DEF(debounce_timer);    
 
-#define MY_LED_2_R NRF_GPIO_PIN_MAP(0, 8)
-
-#define MY_LED_2_G NRF_GPIO_PIN_MAP(1, 9)
-
-#define MY_LED_2_B NRF_GPIO_PIN_MAP(0, 12)
-
-#define MY_SW_1 NRF_GPIO_PIN_MAP(1, 6)
-
-static const int number_blinks[LEDS_NUMBER] = {1, 1, 1, 1};/*device id 6610, last 1 for clarity.*/
-
-static const uint32_t leds[LEDS_NUMBER] = {MY_LED_1, MY_LED_2_R, MY_LED_2_G, MY_LED_2_B};/*pins in order*/
-
-void set_leds(){
-    for(int i = 0;i < LEDS_NUMBER; ++i){
-        nrf_gpio_cfg_output(leds[i]);
+void custom_debounce_timer_handler(void *context){
+    count_click++;
+    if(count_click == 1){
+        //заводим таймер на ограничение по времени для второго нажатия
+        APP_ERROR_CHECK(app_timer_start(double_click_timer, APP_TIMER_TICKS(DOUBLE_CLICK_TIME_MS), NULL));
+    }
+    else{
+        APP_ERROR_CHECK(app_timer_stop(double_click_timer));
+        is_enable = !is_enable;
+        count_click = 0;
     }
 }
 
-void set_sw(){
-    nrf_gpio_cfg_input(MY_SW_1, NRF_GPIO_PIN_PULLUP);
+void custom_double_click_timer_handler(void *context){
+    count_click = 0;
 }
 
-void turn_on_led(int i){
-    nrf_gpio_pin_write(leds[i], 0);
-}
-
-void turn_off_led(int i){
-    nrf_gpio_pin_write(leds[i], 1);
-}
-
-bool is_press(){
-    return !nrf_gpio_pin_read(MY_SW_1);
-}
-
-bool is_not_press(){
-    return !is_press();
+void custom_button_event_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action){
+    APP_ERROR_CHECK(app_timer_stop(debounce_timer));
+    //заводим таймер на дребезжание, если это последний скачок, то stop не сработает
+    APP_ERROR_CHECK(app_timer_start(debounce_timer, APP_TIMER_TICKS(DEBOUNCE_TIME_MS), NULL));
 }
 
 void task(){
-    int count_glow = 0;
     for(int i = 0; i < LEDS_NUMBER; ++i){/*проходимся по всем светодиодвм*/
-        for(int j = 0; j < number_blinks[i]; ++j){/*сколько раз должна прогореть каждый светодиод*/
-            if(is_not_press()){/*если кнопка не нажата*/
-                --j;/*этот раз не считаем*/
-            }
-            else{/*если нажата*/
-                turn_on_led(i);/*включаем светодиод*/
-                int k = count_glow;/*по умлочанию 0, если было прервано нажатие, то другое*/
-                for( ; k < COUNT_CHECK; ++k){/*проверяем каждые CHEC_WAIT_TIME_MS миллисекунд*/
-                    if(is_not_press()){/*если кнопка стала отжата*/
-                        count_glow = --k;/*запомиинаем где остановилась проверка*/
-                        --j;/*попытку не засчитываем*/
-                        break;/*выходим из цикла*/
-                    }
-                    nrf_delay_ms(CHEC_WAIT_TIME_MS);/*ждем время между проверкмаи*/
-                }
-                turn_off_led(i);/*выключаем светодиод*/
-                if(k == COUNT_CHECK){/*если цикл был завершен*/
-                    nrf_delay_ms(LONG_WAIT_TIME_MS);/*ждем время между попытками*/
-                    count_glow = 0;/*устанавливаем в значение по усолчанию*/
-                }
-            }
+        for(int j = 0; j < number_blinks[i]; ++j){/*сколько раз должен прогореть каждый светодиод*/
+            led_single_gorenje(i, DURATION_MS, &is_enable);
+            nrf_delay_ms(DURATION_MS);
         }
     }
 }
 
-/**
- * @brief Function for application main entry.
- */
 int main(void){
-    /* Configure board. */
-    bsp_board_init(BSP_INIT_LEDS);
-    bsp_board_leds_off();
     set_leds();
     set_sw();
-    /* Toggle LEDs. */
-    while (true){
+    turn_off_all_leds();
+    ret_code_t err_code = 0;
+    //инициализация systick для шим
+    nrfx_systick_init();
+
+    //инициализация rtc для обработки кликов и борьбы с дребезжанием
+    err_code = app_timer_init();
+    APP_ERROR_CHECK(err_code);
+
+    //создание таймера для обработки двойного клика(ограничение на время второго клика)
+    err_code = app_timer_create(&double_click_timer, APP_TIMER_MODE_SINGLE_SHOT, custom_double_click_timer_handler);
+    APP_ERROR_CHECK(err_code);
+
+    //создание таймера для debounce
+    err_code = app_timer_create(&debounce_timer, APP_TIMER_MODE_SINGLE_SHOT, custom_debounce_timer_handler);
+    APP_ERROR_CHECK(err_code);
+
+    //инициализация модуля gpiote
+    err_code = nrfx_gpiote_init();
+    APP_ERROR_CHECK(err_code);
+
+    nrfx_gpiote_in_config_t my_config = NRFX_GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
+    my_config.pull = NRF_GPIO_PIN_PULLUP;
+    err_code = nrfx_gpiote_in_init(MY_SW_1, &my_config, custom_button_event_handler);
+    APP_ERROR_CHECK(err_code);
+
+    nrfx_gpiote_in_event_enable(MY_SW_1, true);
+
+    while(true){
         task();
     }
+    
 }
-
-/**
- *@}
- **/
