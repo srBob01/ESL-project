@@ -7,6 +7,8 @@
 
 #define PERIOD_US 1000
 
-void led_single_gorenje(uint32_t led, uint32_t duration_ms, volatile bool *enable);
+bool led_single_blink(uint32_t led, uint32_t duration_ms, bool enable);
+
+bool led_many_blink(uint32_t led, uint32_t num, uint32_t duration_ms, bool enable);
 
 #endif //CUSTOM_BLINK_H
