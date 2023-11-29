@@ -16,10 +16,9 @@
 #include "custom_blink.h"
 #include "custom_click.h"
 
-// #include "nrf_log.h"
-// #include "nrf_log_ctrl.h"
-// #include "nrf_log_default_backends.h"
-// #include "nrf_log_backend_usb.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
 #define DURATION_MS 1000  
 
@@ -33,8 +32,6 @@ void task(){
 }
 
 int main(void){
-    // NRF_LOG_INIT(NULL);
-    // NRF_LOG_DEFAULT_BACKENDS_INIT();
 
     set_leds();
     set_sw();
@@ -47,10 +44,21 @@ int main(void){
 
     timers_init();
 
+    APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
+	
+	// Initialize the default backends for nrf logger
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+
+	// print the log msg over uart port
+    NRF_LOG_INFO("This is log data from nordic device..");
+
+	// a variable to hold counter value
+    uint32_t count = 0;
+
     while(true){
         task();
-        // LOG_BACKEND_USB_PROCESS();
-        // NRF_LOG_PROCESS();
+        LOG_BACKEND_USB_PROCESS();
+        NRF_LOG_PROCESS();
     }
     
 }

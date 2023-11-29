@@ -1,5 +1,8 @@
 #include "custom_click.h"
 #include "custom_button.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
 
 volatile bool is_enable = true;
 static volatile int count_click = 0;
@@ -14,7 +17,7 @@ void custom_debounce_timer_handler(void *context){
     if(count_click == 2){
         is_enable = !is_enable;
         count_click = 0;
-        // NRF_LOG_INFO("%s", is_enable ? "Run" : "Stop");
+        NRF_LOG_INFO("%s", is_enable ? "Run" : "Stop");
     }
 }
 
