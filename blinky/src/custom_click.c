@@ -1,23 +1,40 @@
 #include "custom_click.h"
-#include "custom_button.h"
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
 
-volatile bool is_enable = true;
 static volatile int count_click = 0;
+
+static volatile bool is_unnecessarily = false;
+
+static enum state_wait current_wait = WAIT_DOUBLE_CLICK;
 
 APP_TIMER_DEF(double_click_timer);
 APP_TIMER_DEF(debounce_timer);  
 
 void custom_debounce_timer_handler(void *context){
-    if(!nrfx_gpiote_in_is_set(MY_SW_1)) {//если на момент прохождения времени кнопка была нажата
-        count_click++;
+    if(current_wait == WAIT_DOUBLE_CLICK){
+        if(!nrfx_gpiote_in_is_set(MY_SW_1)) {//если на момент прохождения времени кнопка была нажата
+            count_click++;
+        }
+        if(count_click == 2){
+            pwm_change_mode_led1();
+            count_click = 0;
+            current_wait = WAIT_DURABLY_CLICK;
+            is_unnecessarily = true;
+        }
     }
-    if(count_click == 2){
-        is_enable = !is_enable;
-        count_click = 0;
-        NRF_LOG_INFO("%s", is_enable ? "Run" : "Stop");
+    else{
+        if(is_unnecessarily){
+            is_unnecessarily = false;
+        }
+        else{
+            if(nrfx_gpiote_in_is_set(MY_SW_1)) {//если на момент прохождения времени кнопка была не нажата
+                pwm_change_mode_ledRGB();
+                current_wait = WAIT_DOUBLE_CLICK;
+                is_unnecessarily = true;
+            }
+            else{
+                pwm_change_mode_ledRGB();
+            }
+        }
     }
 }
 
