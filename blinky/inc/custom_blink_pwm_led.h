@@ -8,15 +8,21 @@
 #include "change_hsv.h"
 
 #define COUNT_STEP_1 50
-#define COUNT_STEP_2 25
+#define COUNT_STEP_2 (COUNT_STEP_1 / 2)
 
-void init_array1_for_led1();
+#define SIZE_ARRAY_1 (COUNT_STEP_1 * 2)
+#define SIZE_ARRAY_2 (COUNT_STEP_2 * 2)
 
-void init_array2_for_led1();
+#define LAST_I_ARRAY_1 (SIZE_ARRAY_1 - 1)
+#define LAST_I_ARRAY_2 (SIZE_ARRAY_2 - 1)
 
-void update_i_led1();
+void init_array_for_led_condition(int *arr, int size, int last_i);
 
-void make_change_led1();
+void init_arrays_for_led_condition();
+
+void update_i_led_condition();
+
+void make_change_led_condition();
 
 void make_change_ledRGB();
 
@@ -30,6 +36,6 @@ void update_hsv();
 
 void pwm_change_mode_ledRGB(void);
 
-void pwm_change_mode_led1(void);
+void pwm_change_mode_led_condition(void);
 
 #endif//CUSTOM_BLINK_PWM_LEDRGB

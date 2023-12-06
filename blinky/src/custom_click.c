@@ -2,6 +2,8 @@
 
 static volatile int count_click = 0;
 
+static volatile int save_count_double_click = 0; 
+
 static volatile bool is_unnecessarily = false;
 
 static enum state_wait current_wait = WAIT_DOUBLE_CLICK;
@@ -11,12 +13,17 @@ APP_TIMER_DEF(debounce_timer);
 
 void custom_debounce_timer_handler(void *context){
     if(current_wait == WAIT_DOUBLE_CLICK){
-        if(!nrfx_gpiote_in_is_set(MY_SW_1)) {//если на момент прохождения времени кнопка была нажата
+        if(!nrfx_gpiote_in_is_set(MY_SW_1)) {
             count_click++;
         }
         if(count_click == 2){
-            pwm_change_mode_led1();
             count_click = 0;
+            save_count_double_click++;
+            pwm_change_mode_led_condition();
+            if(save_count_double_click == 4){
+                save_count_double_click = 0;
+                return;
+            }
             current_wait = WAIT_DURABLY_CLICK;
             is_unnecessarily = true;
         }
@@ -26,7 +33,7 @@ void custom_debounce_timer_handler(void *context){
             is_unnecessarily = false;
         }
         else{
-            if(nrfx_gpiote_in_is_set(MY_SW_1)) {//если на момент прохождения времени кнопка была не нажата
+            if(nrfx_gpiote_in_is_set(MY_SW_1)) {
                 pwm_change_mode_ledRGB();
                 current_wait = WAIT_DOUBLE_CLICK;
                 is_unnecessarily = true;

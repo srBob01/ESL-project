@@ -5,6 +5,6 @@
 #include "rgb.h"
 #include "math.h"
 
-void HSVToRGB(HSV current_hsv, RGB* current_rgb);
+void HSVToRGB(const HSV* current_hsv, RGB* current_rgb);
 
 #endif//HSV_TO_RGB_H

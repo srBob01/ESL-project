@@ -1,13 +1,7 @@
 #include "custom_blink_pwm_led.h"
 
-static const int size_array_1 = COUNT_STEP_1 * 2;
-static const int size_array_2 = COUNT_STEP_2 * 2;
-
-static const int last_i_array_1 = size_array_1 - 1;
-static const int last_i_array_2 = size_array_2 - 1;
-
-static int seq_values1_led1[COUNT_STEP_1 * 2];
-static int seq_values2_led1[COUNT_STEP_2 * 2];
+static int low_seq_values_led_condition[SIZE_ARRAY_1];
+static int quick_seq_values_led_condition[SIZE_ARRAY_2];
 
 static nrf_pwm_values_individual_t seq_values[] = { {0}, {0}, {0}, {0} };
 static nrfx_pwm_t m_pwm = NRFX_PWM_INSTANCE(0);
@@ -15,63 +9,60 @@ static nrfx_pwm_t m_pwm = NRFX_PWM_INSTANCE(0);
 static HSV current_hsv = {36, 100, 100};
 static RGB current_rgb = {0, 0, 0};
 
-static state_s current_s = {true};
-static state_v current_v = {true};
+static enum state_direction current_sat = DIRECTION_FORWARD;
+static enum state_direction current_val = DIRECTION_FORWARD;
 
-static enum state_led_rgb current_state_change_ledRGB = NONE_RGB;
-static enum state_led_rgb last_significant_state_change_ledRGB = VALUE;
+static enum state_led_rgb current_state_change_ledRGB = STATE_RGB_NONE;
+static enum state_led_rgb last_significant_state_change_ledRGB = STATE_RGB_VAL;
 
-static enum state_led1 current_state_change_led1 = NONE_1;
+static enum state_led_condition current_state_change_led_condition = STATE_COND_NONE;
 
-static state_iteration current_i_led1 = {0, true, true};
+static state_iterator current_i_led_condition = {0, true};
 
-void init_array1_for_led1(){
-    uint32_t step = MAX_RGB / COUNT_STEP_1;
+void init_array_for_led_condition(int *arr, int count_step, int last_i){
+    uint32_t step = MAX_RGB / count_step;
     uint32_t value = 0;
-    for(int i = 0; i < COUNT_STEP_1; ++i){
-        seq_values1_led1[i] = value;
-        seq_values1_led1[last_i_array_1 - i] = value; 
+    for(int i = 0; i < count_step; ++i){
+        arr[i] = value;
+        arr[last_i - i] = value; 
         value += step;
     }
 }
 
-void init_array2_for_led1(){
-    uint32_t step = MAX_RGB / COUNT_STEP_2;
-    uint32_t value = 0;
-    for(int i = 0; i < COUNT_STEP_2; ++i){
-        seq_values2_led1[i] = value;
-        seq_values2_led1[last_i_array_2 - i] = value;
-        value += step;
-    }
+void init_arrays_for_led_condition(){
+    init_array_for_led_condition(low_seq_values_led_condition, COUNT_STEP_1, LAST_I_ARRAY_1);
+    init_array_for_led_condition(quick_seq_values_led_condition, COUNT_STEP_2, LAST_I_ARRAY_2);
 }
 
-void update_i_led1(){
-    if((current_i_led1.is_first_ar && current_i_led1.i == last_i_array_1) ||
-        (!current_i_led1.is_first_ar && current_i_led1.i == last_i_array_2))
+void update_i_led_condition(){
+    if((current_state_change_led_condition == STATE_COND_LOW && current_i_led_condition.i == LAST_I_ARRAY_1) ||
+        (current_state_change_led_condition == STATE_COND_QUICK && current_i_led_condition.i == LAST_I_ARRAY_2))
     {
-        current_i_led1.i = 0;
+        current_i_led_condition.i = 0;
     }
-    current_i_led1.i = current_i_led1.i + 1;
+    else{
+        current_i_led_condition.i++;
+    }
 }
 
-void make_change_led1(){
-    if(current_i_led1.is_new){
-        switch(current_state_change_led1){
-            case LOW:
-                seq_values->channel_3 = seq_values1_led1[current_i_led1.i];
-                update_i_led1();
+void make_change_led_condition(){
+    if(current_i_led_condition.is_new){
+        switch(current_state_change_led_condition){
+            case STATE_COND_LOW:
+                seq_values->channel_3 = low_seq_values_led_condition[current_i_led_condition.i];
+                update_i_led_condition();
                 break;
-            case QUICK:
-                seq_values->channel_3 = seq_values2_led1[current_i_led1.i];
-                update_i_led1();
+            case STATE_COND_QUICK:
+                seq_values->channel_3 = quick_seq_values_led_condition[current_i_led_condition.i];
+                update_i_led_condition();
                 break;
-            case FULL:
+            case STATE_COND_FULL:
                 seq_values->channel_3 = MAX_RGB;
-                current_i_led1.is_new = false;
+                current_i_led_condition.is_new = false;
                 break;
-            case NONE_1:
+            case STATE_COND_NONE:
                 seq_values->channel_3 = 0;
-                current_i_led1.is_new = false;
+                current_i_led_condition.is_new = false;
                 break;
             default:
                 break;
@@ -80,7 +71,20 @@ void make_change_led1(){
 }
 
 void make_change_ledRGB(){
-    HSVToRGB(current_hsv, &current_rgb);
+    switch(current_state_change_ledRGB){
+        case STATE_RGB_HUE:
+            change_hue(&current_hsv);
+            break;
+        case STATE_RGB_SAT:
+            change_sat(&current_hsv, &current_sat);
+            break;
+        case STATE_RGB_VAL:
+            change_val(&current_hsv, &current_val);
+            break;
+        case STATE_RGB_NONE:
+            return;
+    }
+    HSVToRGB(&current_hsv, &current_rgb);
     seq_values->channel_0 = current_rgb.r;
     seq_values->channel_1 = current_rgb.g;
     seq_values->channel_2 = current_rgb.b;
@@ -88,20 +92,7 @@ void make_change_ledRGB(){
 
 void pwm_individual_led_handler(nrfx_pwm_evt_type_t event_type){
     if (event_type == NRFX_PWM_EVT_FINISHED){
-        make_change_led1();
-        switch(current_state_change_ledRGB){
-            case HUE:
-                change_h(&current_hsv);
-                break;
-            case SATURATION:
-                change_s(&current_hsv, &current_s);
-                break;
-            case VALUE:
-                change_v(&current_hsv, &current_v);
-                break;
-            case NONE_RGB:
-                return;
-        }
+        make_change_led_condition();
         make_change_ledRGB();
     }
 }
@@ -132,33 +123,28 @@ void pwm_play_led(void){
         .end_delay        = 0
     };
     pwm_individual_init_led();
-    make_change_ledRGB();
-    make_change_led1();
+    HSVToRGB(&current_hsv, &current_rgb);
+    seq_values->channel_0 = current_rgb.r;
+    seq_values->channel_1 = current_rgb.g;
+    seq_values->channel_2 = current_rgb.b;
     (void)nrfx_pwm_simple_playback(&m_pwm, &seq, 1, NRFX_PWM_FLAG_LOOP);
 }
 
-void update_hsv(){
-    current_hsv.h = 36;
-    current_hsv.s = 100;
-    current_hsv.v = 100;
-    make_change_ledRGB();
-}
-
 void pwm_change_mode_ledRGB(void){
-    if(current_state_change_ledRGB != NONE_RGB){
+    if(current_state_change_ledRGB != STATE_RGB_NONE){
         last_significant_state_change_ledRGB = current_state_change_ledRGB;
-        current_state_change_ledRGB = NONE_RGB;
+        current_state_change_ledRGB = STATE_RGB_NONE;
     }
     else{
         switch(last_significant_state_change_ledRGB){
-            case HUE:
-                current_state_change_ledRGB = SATURATION;
+            case STATE_RGB_HUE:
+                current_state_change_ledRGB = STATE_RGB_SAT;
                 break;
-            case SATURATION:
-                current_state_change_ledRGB = VALUE;
+            case STATE_RGB_SAT:
+                current_state_change_ledRGB = STATE_RGB_VAL;
                 break;
-            case VALUE:
-                current_state_change_ledRGB = HUE;
+            case STATE_RGB_VAL:
+                current_state_change_ledRGB = STATE_RGB_HUE;
                 break;
             default:
                 break;
@@ -166,26 +152,23 @@ void pwm_change_mode_ledRGB(void){
     }
 }
 
-void pwm_change_mode_led1(void){
-    switch(current_state_change_led1){
-        case LOW:
-            current_i_led1.is_first_ar = false;
-            current_i_led1.i = 0;
-            current_state_change_led1 = QUICK;
+void pwm_change_mode_led_condition(void){
+    switch(current_state_change_led_condition){
+        case STATE_COND_LOW:
+            current_i_led_condition.i = 0;
+            current_state_change_led_condition = STATE_COND_QUICK;
             break;
-        case QUICK:
-            current_state_change_led1 = FULL;
+        case STATE_COND_QUICK:
+            current_state_change_led_condition = STATE_COND_FULL;
             break;
-        case FULL:
-            current_state_change_led1 = NONE_1;
-            current_i_led1.is_new = true;
+        case STATE_COND_FULL:
+            current_state_change_led_condition = STATE_COND_NONE;
+            current_i_led_condition.is_new = true;
             break;
-        case NONE_1:
-            current_state_change_led1 = LOW;
-            current_i_led1.is_new = true;
-            current_i_led1.is_first_ar = true;
-            current_i_led1.i = 0;
-            update_hsv();
+        case STATE_COND_NONE:
+            current_state_change_led_condition = STATE_COND_LOW;
+            current_i_led_condition.is_new = true;
+            current_i_led_condition.i = 0;
             break;
         default:
             break;

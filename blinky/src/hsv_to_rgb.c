@@ -1,7 +1,7 @@
 #include "hsv_to_rgb.h"
 
-void HSVToRGB(HSV current_hsv, RGB* result_rgb) {
-    float H = current_hsv.h, S = current_hsv.s, V = current_hsv.v;
+void HSVToRGB(const HSV* current_hsv, RGB* result_rgb) {
+    float H = current_hsv->hue, S = current_hsv->sat, V = current_hsv->val;
     if(H>360 || H<0 || S>100 || S<0 || V>100 || V<0){
         return;
     }
@@ -29,7 +29,7 @@ void HSVToRGB(HSV current_hsv, RGB* result_rgb) {
     else{
         r = C,g = 0,b = X;
     }
-    (*result_rgb).r = (r+m) * MAX_RGB;
-    (*result_rgb).g = (g+m) * MAX_RGB;
-    (*result_rgb).b = (b+m) * MAX_RGB;
+    result_rgb->r = (r+m) * MAX_RGB;
+    result_rgb->g = (g+m) * MAX_RGB;
+    result_rgb->b = (b+m) * MAX_RGB;
 }

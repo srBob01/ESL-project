@@ -6,9 +6,9 @@
 #define MAX_HUE 360
 
 typedef struct{
-    float h;
-    float s;
-    float v;
+    float hue;
+    float sat;
+    float val;
 } HSV;
 
 #endif//HSV_H

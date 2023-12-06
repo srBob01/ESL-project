@@ -16,9 +16,7 @@ int main(void){
 
     timers_init();
 
-    init_array1_for_led1();
-
-    init_array2_for_led1();
+    init_arrays_for_led_condition();
 
     pwm_play_led();
 

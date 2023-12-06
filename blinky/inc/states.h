@@ -3,32 +3,28 @@
 
 #include <stdbool.h>
 
-typedef struct{
-    bool f;
-} state_s;
-
-typedef struct{
-    bool f;
-} state_v;
+enum state_direction{
+    DIRECTION_FORWARD,
+    DIRECTION_DOWNWARD
+};
 
 typedef struct{
     int i;
     bool is_new;
-    bool is_first_ar;
-} state_iteration;
+} state_iterator;
 
 enum state_led_rgb{
-    HUE, 
-    SATURATION, 
-    VALUE, 
-    NONE_RGB
+    STATE_RGB_HUE, 
+    STATE_RGB_SAT, 
+    STATE_RGB_VAL, 
+    STATE_RGB_NONE
 };
 
-enum state_led1{
-    LOW, 
-    QUICK,
-    FULL,
-    NONE_1
+enum state_led_condition{
+    STATE_COND_LOW, 
+    STATE_COND_QUICK,
+    STATE_COND_FULL,
+    STATE_COND_NONE
 };
 
 enum state_wait{

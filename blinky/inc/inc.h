@@ -16,7 +16,6 @@
 
 #include "custom_leds.h"
 #include "custom_button.h"
-#include "custom_blink.h"
 #include "custom_click.h"
 #include "custom_blink_pwm_led.h"
 #include "states.h"

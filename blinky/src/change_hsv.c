@@ -1,32 +1,42 @@
 #include "change_hsv.h"
 
-void change_h(HSV *current_hsv){
-    if((*current_hsv).h == MAX_HUE){
-        (*current_hsv).h = 0;
+void change_hue(HSV *current_hsv){
+    if(current_hsv->hue == MAX_HUE){
+        current_hsv->hue = 0;
     }
     else{
-        (*current_hsv).h = (*current_hsv).h + 1;
+        current_hsv->hue++;
     }
 }
 
-void change_s(HSV *current_hsv, state_s* current_s){
-    if((*current_hsv).s == 0){
-        (*current_s).f = false;
+void change_sat(HSV *current_hsv, enum state_direction* current_sat){
+    if(current_hsv->sat == 0){
+        (*current_sat) = DIRECTION_FORWARD;
     }
     else
-         if((*current_hsv).s == MAX_SAT){
-            (*current_s).f = true;
+         if(current_hsv->sat == MAX_SAT){
+            (*current_sat) = DIRECTION_DOWNWARD;
         }
-    (*current_hsv).s = (*current_hsv).s + ((*current_s).f ? -1 : 1) ;
+    if((*current_sat) == DIRECTION_FORWARD){
+        current_hsv->sat++;
+    }
+    else{
+        current_hsv->sat--;
+    }
 }
 
-void change_v(HSV *current_hsv, state_v* current_v){
-    if((*current_hsv).v == 0){
-        (*current_v).f = false;
+void change_val(HSV *current_hsv, enum state_direction* current_val){
+    if(current_hsv->val == 0){
+        (*current_val) = DIRECTION_FORWARD;
     }
     else
-         if((*current_hsv).v == MAX_VAL){
-            (*current_v).f = true;
+         if(current_hsv->val == MAX_VAL){
+            (*current_val) = DIRECTION_DOWNWARD;
         }
-    (*current_hsv).v = (*current_hsv).v + ((*current_v).f ? -1 : 1) ;
+    if((*current_val) == DIRECTION_FORWARD){
+        current_hsv->val++;
+    }
+    else{
+        current_hsv->val--;
+    }
 }
