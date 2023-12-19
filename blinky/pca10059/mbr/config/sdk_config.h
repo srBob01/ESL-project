@@ -3169,9 +3169,6 @@
 
 #define PWM0_ENABLED 1
 
-#define NRFX_PWM1_ENABLED 1
-
-#define NRFX_PWM2_ENABLED 1
 
 #define NRFX_CLOCK_ENABLED 1
 
@@ -3209,6 +3206,12 @@
 #define PWM_DEFAULT_CONFIG_COUNT_MODE 1
 #define PWM_DEFAULT_CONFIG_TOP_VALUE 1200
 #define PWM_DEFAULT_CONFIG_LOAD_MODE 2
+
+#define NRFX_NVMC_ENABLED 1
+
+#define NRF52840_XXAA 1
+
+// #define NRF52_SERIES 1
 
 // </h> 
 //==========================================================

@@ -13,12 +13,6 @@ $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
 
 # Source files common to all targets
 SRC_FILES += \
-  $(PROJ_DIR)/src/custom_leds.c \
-  $(PROJ_DIR)/src/custom_button.c \
-  $(PROJ_DIR)/src/custom_click.c \
-  $(PROJ_DIR)/src/custom_blink_pwm_led.c \
-  $(PROJ_DIR)/src/hsv_to_rgb.c \
-  $(PROJ_DIR)/src/change_hsv.c \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
@@ -37,6 +31,13 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/src/custom_leds.c \
+  $(PROJ_DIR)/src/custom_button.c \
+  $(PROJ_DIR)/src/custom_click.c \
+  $(PROJ_DIR)/src/custom_nvm.c \
+  $(PROJ_DIR)/src/custom_blink_pwm_led.c \
+  $(PROJ_DIR)/src/hsv_and_rgb.c \
+  $(PROJ_DIR)/src/change_hsv.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_systick.c \
@@ -47,15 +48,26 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_pwm.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_nvmc.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_usb.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd.c \
+  $(SDK_ROOT)/components/libraries/usbd/class/cdc/acm/app_usbd_cdc_acm.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd_core.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd_string_desc.c \
+  $(SDK_ROOT)/components/libraries/usbd/app_usbd_serial_num.c \
   
   
-
 # Include folders common to all targets
 INC_FOLDERS += \
-  $(PROJ_DIR)/inc \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(PROJ_DIR) \
+  $(PROJ_DIR)/inc\
   $(SDK_ROOT)/components/softdevice/mbr/headers \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
@@ -83,7 +95,10 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/log \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
-  
+  $(SDK_ROOT)/components/libraries/bootloader/dfu \
+  $(SDK_ROOT)/components/libraries/usbd \
+  $(SDK_ROOT)/components/libraries/usbd/class/cdc \
+  $(SDK_ROOT)/components/libraries/usbd/class/cdc/acm \
 
 
 

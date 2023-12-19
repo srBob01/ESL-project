@@ -2,6 +2,7 @@
 #define STATES_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 enum state_direction{
     DIRECTION_FORWARD,
@@ -12,6 +13,11 @@ typedef struct{
     int i;
     bool is_new;
 } state_iterator;
+
+typedef struct{
+    bool is_need_to_erase_page;
+    uint32_t f_addr;
+} state_save;
 
 enum state_led_rgb{
     STATE_RGB_HUE, 

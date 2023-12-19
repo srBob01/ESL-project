@@ -1,8 +1,16 @@
 #include "inc.h"
 
-#define DURATION_MS 1000  
+void logs_init()
+{
+    ret_code_t ret = NRF_LOG_INIT(NULL);
+    APP_ERROR_CHECK(ret);
+
+    NRF_LOG_DEFAULT_BACKENDS_INIT();
+}
 
 int main(void){
+
+    logs_init();
 
     set_leds();
     set_sw();
@@ -20,8 +28,11 @@ int main(void){
 
     pwm_play_led();
 
-    while(true){
+    // NRF_LOG_INFO("Starting up the test project with USB logging");
 
+    while(true){
+        // LOG_BACKEND_USB_PROCESS();
+        // NRF_LOG_PROCESS();
     }
     
 }

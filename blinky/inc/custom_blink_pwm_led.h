@@ -3,18 +3,11 @@
 
 #include "nrfx_pwm.h"
 #include "custom_leds.h"
-#include "hsv_to_rgb.h"
+#include "hsv_and_rgb.h"
 #include "nrf_delay.h"
 #include "change_hsv.h"
-
-#define COUNT_STEP_1 50
-#define COUNT_STEP_2 (COUNT_STEP_1 / 2)
-
-#define SIZE_ARRAY_1 (COUNT_STEP_1 * 2)
-#define SIZE_ARRAY_2 (COUNT_STEP_2 * 2)
-
-#define LAST_I_ARRAY_1 (SIZE_ARRAY_1 - 1)
-#define LAST_I_ARRAY_2 (SIZE_ARRAY_2 - 1)
+#include "custom_nvm.h"
+#include "custom_leds.h"
 
 void init_array_for_led_condition(int *arr, int size, int last_i);
 

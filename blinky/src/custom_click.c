@@ -1,8 +1,8 @@
 #include "custom_click.h"
 
-static volatile int count_click = 0;
+static volatile uint8_t count_click = 0;
 
-static volatile int save_count_double_click = 0; 
+static volatile uint8_t save_count_double_click = 0; 
 
 static volatile bool is_unnecessarily = false;
 
@@ -17,6 +17,7 @@ void custom_debounce_timer_handler(void *context){
             count_click++;
         }
         if(count_click == 2){
+            NRF_LOG_INFO("Change state green led");
             count_click = 0;
             save_count_double_click++;
             pwm_change_mode_led_condition();
@@ -35,11 +36,13 @@ void custom_debounce_timer_handler(void *context){
         else{
             if(nrfx_gpiote_in_is_set(MY_SW_1)) {
                 pwm_change_mode_ledRGB();
+                NRF_LOG_INFO("End changing rgb led");
                 current_wait = WAIT_DOUBLE_CLICK;
                 is_unnecessarily = true;
             }
             else{
                 pwm_change_mode_ledRGB();
+                NRF_LOG_INFO("Start changing rgb led");
             }
         }
     }

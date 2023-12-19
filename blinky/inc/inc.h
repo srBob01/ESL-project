@@ -13,6 +13,15 @@
 #include "nrfx_pwm.h"
 #include "nrf_drv_clock.h"
 #include "nrfx_glue.h"
+#include "nrfx_nvmc.h"
+
+#include "nordic_common.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "nrf_log_backend_usb.h"
+#include "app_usbd.h"
+#include "app_usbd_serial_num.h"
 
 #include "custom_leds.h"
 #include "custom_button.h"
@@ -21,7 +30,8 @@
 #include "states.h"
 #include "hsv.h"
 #include "rgb.h"
-#include "hsv_to_rgb.h"
+#include "hsv_and_rgb.h"
 #include "change_hsv.h"
+#include "custom_nvm.h"
 
 #endif
