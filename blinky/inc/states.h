@@ -14,11 +14,6 @@ typedef struct{
     bool is_new;
 } state_iterator;
 
-typedef struct{
-    bool is_need_to_erase_page;
-    uint32_t f_addr;
-} state_save;
-
 enum state_led_rgb{
     STATE_RGB_HUE, 
     STATE_RGB_SAT, 
