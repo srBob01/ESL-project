@@ -97,7 +97,6 @@ void make_change_ledRGB(){
     seq_values->channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
     seq_values->channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
     seq_values->channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
-    // write_state(current_rgb_or_word.word);
     save_data_to_nvm(&current_rgb_or_word);
 }
 
@@ -136,15 +135,6 @@ void pwm_play_led(void){
     pwm_individual_init_led();
     read_data_from_nvm(&current_rgb_or_word);
     RGBToHSV(&current_rgb_or_word.color, &current_hsv);
-    // if(init_nvm(&current_rgb_or_word)){
-        // current_hsv.hue = DEFAULT_HUE;
-        // current_hsv.sat = DEFAULT_SAT;
-        // current_hsv.val = DEFAULT_VAL;
-        // HSVToRGB(&current_hsv, &current_rgb_or_word.color);
-    // }
-    // else{
-    //     RGBToHSV(&current_rgb_or_word.color, &current_hsv);
-    // }
     seq_values->channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
     seq_values->channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
     seq_values->channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);

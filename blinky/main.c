@@ -28,11 +28,11 @@ int main(void){
 
     pwm_play_led();
 
-    // NRF_LOG_INFO("Starting up the test project with USB logging");
+    NRF_LOG_INFO("Starting up the test project with USB logging");
 
     while(true){
-        // LOG_BACKEND_USB_PROCESS();
-        // NRF_LOG_PROCESS();
+        LOG_BACKEND_USB_PROCESS();
+        NRF_LOG_PROCESS();
     }
     
 }
