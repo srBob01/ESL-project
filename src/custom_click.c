@@ -59,17 +59,6 @@ void custom_button_event_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t ac
     APP_ERROR_CHECK(app_timer_start(double_click_timer, APP_TIMER_TICKS(DOUBLE_CLICK_TIME_MS), NULL));
 }
 
-void lfclk_request(void)
-{
-    APP_ERROR_CHECK(nrf_drv_clock_init());
-    nrf_drv_clock_lfclk_request(NULL);
-
-    while (!nrf_drv_clock_lfclk_is_running())
-    {
-        /* Just waiting until the lf clock starts up */
-    }
-}
-
 void timers_init(void){
     ret_code_t err_code = 0;
     //инициализация модуля gpiote

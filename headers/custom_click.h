@@ -23,7 +23,6 @@ void custom_double_click_timer_handler(void *context);
 void custom_debounce_timer_handler(void *context);
 void custom_debounce_timer_handler(void *context);
 void custom_button_event_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action);
-void lfclk_request(void);
 void timers_init(void);
 
 #endif //CUSTOM_CKICK_H

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MAX_RGB_FOR_BLINK 5000
+#define MAX_RGB_FOR_BLINK 10000
 #define MAX_RGB_FOR_PEOPLE 255
 
 #define RGB_DEFAULT_RED 255

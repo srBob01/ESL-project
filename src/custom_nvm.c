@@ -11,12 +11,13 @@ static uint32_t curent_empty_f_addr = CUSTOM_APP_DATA_AREA_START_ADDR;
 
 void save_data_to_nvm(union RGB_OR_WORD* rgb_or_word) {
     nrfx_nvmc_word_write(curent_empty_f_addr, rgb_or_word->word);
-    curent_empty_f_addr += 4;
+    curent_empty_f_addr += sizeof(rgb_or_word);
     if(curent_empty_f_addr == CUSTOM_APP_DATA_AREA_END_ADDR){
         nrfx_nvmc_page_erase(CUSTOM_APP_DATA_AREA_START_ADDR);
         nrfx_nvmc_word_write(CUSTOM_APP_DATA_AREA_START_ADDR, rgb_or_word->word);
-        curent_empty_f_addr = CUSTOM_APP_DATA_AREA_START_ADDR + 4;
+        curent_empty_f_addr = CUSTOM_APP_DATA_AREA_START_ADDR + sizeof(rgb_or_word);
     }
+    while(!nrfx_nvmc_write_done_check()){;}
 }
 
 void read_data_from_nvm(union RGB_OR_WORD* rgb_or_word) {
@@ -34,10 +35,11 @@ void read_data_from_nvm(union RGB_OR_WORD* rgb_or_word) {
         current_rgb_or_word.color.b = RGB_DEFAULT_BLUE;
         current_rgb_or_word.color.flag_recorded = DEFAULT_FLAG_RECORDED;
         nrfx_nvmc_word_write(f_addr, current_rgb_or_word.word);
+        while(!nrfx_nvmc_write_done_check()){;}
     }
     else{
         uint32_t i = 0;
-        for (i = CUSTOM_APP_DATA_AREA_START_ADDR; i != CUSTOM_APP_DATA_AREA_END_ADDR; i += 4) {
+        for (i = CUSTOM_APP_DATA_AREA_START_ADDR; i != CUSTOM_APP_DATA_AREA_END_ADDR; i += sizeof(current_rgb_or_word)) {
             p_addr = (uint32_t *)i;
             current_rgb_or_word.word = *p_addr;
             if(current_rgb_or_word.word == CELL_EMPTY){
@@ -47,11 +49,12 @@ void read_data_from_nvm(union RGB_OR_WORD* rgb_or_word) {
         if(i == CUSTOM_APP_DATA_AREA_END_ADDR){
             nrfx_nvmc_page_erase(CUSTOM_APP_DATA_AREA_START_ADDR);
             nrfx_nvmc_word_write(CUSTOM_APP_DATA_AREA_START_ADDR, current_rgb_or_word.word);
-            curent_empty_f_addr = CUSTOM_APP_DATA_AREA_START_ADDR + 4;
+            while(!nrfx_nvmc_write_done_check()){;}
+            curent_empty_f_addr = CUSTOM_APP_DATA_AREA_START_ADDR + sizeof(current_rgb_or_word);
         }
         else{
             curent_empty_f_addr = i;
-            i -= 4;
+            i -= sizeof(current_rgb_or_word);
             p_addr = (uint32_t *)i;
             current_rgb_or_word.word = *p_addr;
         }

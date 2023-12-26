@@ -1,6 +1,6 @@
 #include "custom_blink_pwm_led.h"
 
-#define COUNT_STEP_1 50
+#define COUNT_STEP_1 80
 #define COUNT_STEP_2 (COUNT_STEP_1 / 2)
 
 #define SIZE_ARRAY_1 (COUNT_STEP_1 * 2)
@@ -12,7 +12,7 @@
 static int low_seq_values_led_condition[SIZE_ARRAY_1];
 static int quick_seq_values_led_condition[SIZE_ARRAY_2];
 
-static nrf_pwm_values_individual_t seq_values[] = { {0}, {0}, {0}, {0} };
+static nrf_pwm_values_individual_t seq_values = { 0 };
 static nrfx_pwm_t m_pwm = NRFX_PWM_INSTANCE(0);
 
 static HSV current_hsv;
@@ -58,19 +58,19 @@ void make_change_led_condition(){
     if(current_i_led_condition.is_new){
         switch(current_state_change_led_condition){
             case STATE_COND_LOW:
-                seq_values->channel_3 = low_seq_values_led_condition[current_i_led_condition.i];
+                seq_values.channel_3 = low_seq_values_led_condition[current_i_led_condition.i];
                 update_i_led_condition();
                 break;
             case STATE_COND_QUICK:
-                seq_values->channel_3 = quick_seq_values_led_condition[current_i_led_condition.i];
+                seq_values.channel_3 = quick_seq_values_led_condition[current_i_led_condition.i];
                 update_i_led_condition();
                 break;
             case STATE_COND_FULL:
-                seq_values->channel_3 = MAX_RGB_FOR_BLINK;
+                seq_values.channel_3 = MAX_RGB_FOR_BLINK;
                 current_i_led_condition.is_new = false;
                 break;
             case STATE_COND_NONE:
-                seq_values->channel_3 = 0;
+                seq_values.channel_3 = 0;
                 current_i_led_condition.is_new = false;
                 break;
             default:
@@ -94,9 +94,9 @@ void make_change_ledRGB(){
             return;
     }
     HSVToRGB(&current_hsv, &current_rgb_or_word.color);
-    seq_values->channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
-    seq_values->channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
-    seq_values->channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
+    seq_values.channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
+    seq_values.channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
+    seq_values.channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
     save_data_to_nvm(&current_rgb_or_word);
 }
 
@@ -135,9 +135,9 @@ void pwm_play_led(void){
     pwm_individual_init_led();
     read_data_from_nvm(&current_rgb_or_word);
     RGBToHSV(&current_rgb_or_word.color, &current_hsv);
-    seq_values->channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
-    seq_values->channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
-    seq_values->channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
+    seq_values.channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
+    seq_values.channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
+    seq_values.channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
     (void)nrfx_pwm_simple_playback(&m_pwm, &seq, 1, NRFX_PWM_FLAG_LOOP);
 }
 
