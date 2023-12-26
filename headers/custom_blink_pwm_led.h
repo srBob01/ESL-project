@@ -17,6 +17,10 @@ void update_i_led_condition();
 
 void make_change_led_condition();
 
+void set_channel(union RGB_OR_WORD tmp_rgb_or_word);
+
+void change_ledRGB(union RGB_OR_WORD tmp_rgb_or_word);
+
 void make_change_ledRGB();
 
 void pwm_individual_led_handler(nrfx_pwm_evt_type_t event_type);

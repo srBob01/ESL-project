@@ -33,4 +33,11 @@ enum state_wait{
     WAIT_DURABLY_CLICK
 };
 
+enum command{
+    COMMAND_HELP,
+    COMMAND_RGB,
+    COMMAND_HSV,
+    COMMAND_NONE
+};
+
 #endif//STATES_H

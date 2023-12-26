@@ -16,7 +16,7 @@ int main(void){
     set_sw();
     turn_off_all_leds();
     
-    // //инициализация systick для шим
+    //инициализация systick для шим
     nrfx_systick_init();
 
     timers_init();
@@ -24,6 +24,12 @@ int main(void){
     init_arrays_for_led_condition();
 
     pwm_play_led();
+
+    init_length();
+
+    app_usbd_class_inst_t const * class_cdc_acm = app_usbd_cdc_acm_class_inst_get(&usb_cdc_acm);
+    ret_code_t ret = app_usbd_class_append(class_cdc_acm);
+    APP_ERROR_CHECK(ret);
 
     NRF_LOG_INFO("Starting up the test project with USB logging");
 

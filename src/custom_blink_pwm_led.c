@@ -79,6 +79,20 @@ void make_change_led_condition(){
     }
 }
 
+void set_channel(union RGB_OR_WORD tmp_rgb_or_word){
+    seq_values.channel_0 = (tmp_rgb_or_word.color.r * ration_rgb_people_to_blink);
+    seq_values.channel_1 = (tmp_rgb_or_word.color.g * ration_rgb_people_to_blink);
+    seq_values.channel_2 = (tmp_rgb_or_word.color.b * ration_rgb_people_to_blink);
+}
+
+void change_ledRGB(union RGB_OR_WORD tmp_rgb_or_word){
+    current_rgb_or_word.color.r = tmp_rgb_or_word.color.r;
+    current_rgb_or_word.color.g = tmp_rgb_or_word.color.g;
+    current_rgb_or_word.color.b = tmp_rgb_or_word.color.b;
+    RGBToHSV(&current_rgb_or_word.color, &current_hsv);
+    set_channel(current_rgb_or_word);
+}
+
 void make_change_ledRGB(){
     switch(current_state_change_ledRGB){
         case STATE_RGB_HUE:
@@ -94,9 +108,7 @@ void make_change_ledRGB(){
             return;
     }
     HSVToRGB(&current_hsv, &current_rgb_or_word.color);
-    seq_values.channel_0 = (current_rgb_or_word.color.r * ration_rgb_people_to_blink);
-    seq_values.channel_1 = (current_rgb_or_word.color.g * ration_rgb_people_to_blink);
-    seq_values.channel_2 = (current_rgb_or_word.color.b * ration_rgb_people_to_blink);
+    set_channel(current_rgb_or_word);
     save_data_to_nvm(&current_rgb_or_word);
 }
 

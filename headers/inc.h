@@ -33,5 +33,6 @@
 #include "hsv_and_rgb.h"
 #include "change_hsv.h"
 #include "custom_nvm.h"
+#include "custom_cli.h"
 
 #endif

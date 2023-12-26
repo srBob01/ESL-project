@@ -11,6 +11,9 @@
 #define RGB_DEFAULT_BLUE 0
 #define DEFAULT_FLAG_RECORDED 0
 
+#define MAX_RGB 255
+#define MIN_RGB 0
+
 static const float ration_rgb_people_to_blink = MAX_RGB_FOR_BLINK / MAX_RGB_FOR_PEOPLE;
 
 typedef struct{
